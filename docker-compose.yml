@@ -1,0 +1,40 @@
+version: '2'
+services:
+  www:
+    image: debian:jessie
+    volumes:
+      - ./www:/var/www/html
+    tty: true
+  nginx:
+    build: ./docker-configs/nginx
+    # ports:
+      # - 80:80
+    links:
+      - php
+    volumes_from:
+      - www
+    environment:
+      - VIRTUAL_HOST=sample.laravel.local
+  php:
+    build: ./docker-configs/php
+    # ports:
+      # - 9000:9000
+    volumes_from:
+      - www
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./docker-configs/nginx-proxy/certs:/etc/nginx/certs
+    ports:
+      - '80:80'
+      - '443:443'
+  mysql:
+    build: ./docker-configs/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: admin
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./data/init.d:/docker-entrypoint-initdb.d
