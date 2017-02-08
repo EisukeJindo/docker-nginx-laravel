@@ -5,6 +5,9 @@ RUN docker-php-ext-configure gd \
     --with-jpeg-dir=/usr/lib/x86_64-linux-gnu/ \
     && docker-php-ext-install pdo pdo_mysql gd mbstring
 
+RUN usermod -u 1000 www-data \
+   && groupmod -g 1000 www-data
+
 # composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 #composer高速化ライブラリ
